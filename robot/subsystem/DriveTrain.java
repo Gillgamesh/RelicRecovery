@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.relicrecovery.robot.subsystem;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
@@ -18,19 +19,28 @@ public class DriveTrain implements Subsystem {
     private DcMotor backLeft;
     private DcMotor backRight;
     //quickly operate on all motors:
+    //for andymark motors, one tick = one encoder count
     private List<DcMotor> motors;
+    private static final double GEAR_RATIO  = 40;
+    private static final double PPR = 7.0;
+    private static final double CPR = PPR*4;
+    private static final double DIAMETER = 4; //in
+    private static final double TICKS_PER_REVOLUTION  = CPR * GEAR_RATIO;
+    private static final double INCHES_PER_TICK = ((DIAMETER * Math.PI) / TICKS_PER_REVOLUTION) * Math.sqrt(2)/2;
+    private static final double TICKS_PER_INCH = 1 / INCHES_PER_TICK;
     @Override
     public void init(HardwareMap parts) {
         //INITIATE
         HardwareMap hwMap = parts;
-        motors = new LinkedList<>();
+        motors = new LinkedList<DcMotor>();
 
         //find the devices based off configuration hwmaps
         motors.add(frontLeft = hwMap.dcMotor.get("frontLeft"));
-        motors.add(backLeft = hwMap.dcMotor.get("backLeft"));
         motors.add(frontRight = hwMap.dcMotor.get("frontRight"));
-        motors.add(backRight = hwMap.dcMotor.get("backRight"));
-
+        motors.add(backLeft = hwMap.dcMotor.get("backLeft"));
+        motors.add( backRight = hwMap.dcMotor.get("backRight"));
+        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         //break:
         for (DcMotor m: motors) {
             m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -55,16 +65,48 @@ public class DriveTrain implements Subsystem {
         backRight.setPower(Range.clip(br,-1,1));
 
     }
+
     //THETA = COUNTER CLOCKWISE ROTATION,
+    // \/
+    // /\
     public void paraDrive(double x, double y, double theta) {
-        blindDrive(y+x-theta, y-x+theta,
-                y-x-theta, y+x+theta);
+        double fl = y-x+theta, fr = y+x-theta,
+                bl = y+x+theta, br = y-x-theta;
+//        double scale = Math.max(Math.max(fl, fr), Math.max(bl, br))  / 1.0;
+        blindDrive(fl, fr,
+                bl, br);
     }
 
-    //ROT  = CLOCKWISE ROTATION (intuitively for + on joystick = rightward rotation)
     public void polarDrive(double r, double theta, double rot) {
-        blindDrive(r*(Math.sin(theta)+Math.cos(theta)) + rot, r*(Math.sin(theta)-Math.cos(theta)) - rot,
-                r*(Math.sin(theta)-Math.cos(theta)) + rot, r*(Math.sin(theta)+Math.cos(theta)) - rot );
+        paraDrive(r*Math.cos(theta), r*Math.sin(theta), rot);
+    }
+    public List<DcMotor> getMotors() {
+        return this.motors;
+    }
+
+
+    public void runUsingEncoders() {
+        for (DcMotor m: motors) m.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+    public void runWithoutEncoders() {
+        for (DcMotor m: motors) m.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public void resetEncoders() {
+        for (DcMotor m: motors) {
+            m.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            m.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+    }
+    public double getForwardEncoders() {
+        return Math.sqrt(frontRight.getCurrentPosition()*frontRight.getCurrentPosition() +
+        frontLeft.getCurrentPosition()*frontLeft.getCurrentPosition() +
+        backRight.getCurrentPosition()*backRight.getCurrentPosition() +
+        backLeft.getCurrentPosition()*backLeft.getCurrentPosition());
+    }
+
+    public double getInchesPerTick() {
+        return INCHES_PER_TICK;
     }
 
 
