@@ -11,7 +11,7 @@ public abstract class AutoMecanum extends AutonRR {
         ElapsedTime t = new ElapsedTime();
         while (opModeIsActive() &&  distEnc > ticksTraveled && t.milliseconds()/1000.0 < maxTime) {
             ticksTraveled = Math.abs(dt.getForwardEncoders());
-            dt.paraDrive(0, maxTime * Math.sqrt((distEnc - ticksTraveled)/ distEnc), 0);
+            dt.paraDrive(0, maxSpeed * Math.sqrt((distEnc - ticksTraveled)/ distEnc), 0);
         }
         dt.stop();
     }
