@@ -9,8 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * DriveTrain: Controls the hardwre configuration for the drivetrain and provides basic methods
- * This is a 4 Wheel Mecanum wheel drive.
+ * DriveTrain: Controls the hardwre configuration for the drivetrain and provides basic methods for managing encoders
+ * This is a 4 Wheel Mecanum drive.
  */
 
 public class DriveTrain implements Subsystem {
@@ -21,12 +21,12 @@ public class DriveTrain implements Subsystem {
     //quickly operate on all motors:
     //for andymark motors, one tick = one encoder count
     private List<DcMotor> motors;
-    private static final double GEAR_RATIO  = 40;
+    private static final double GEAR_RATIO  = 30;
     private static final double PPR = 7.0;
     private static final double CPR = PPR*4;
     private static final double DIAMETER = 4; //in
     private static final double TICKS_PER_REVOLUTION  = CPR * GEAR_RATIO;
-    private static final double INCHES_PER_TICK = ((DIAMETER * Math.PI) / TICKS_PER_REVOLUTION) * Math.sqrt(2)/2;
+    private static final double INCHES_PER_TICK = ((DIAMETER * Math.PI) / TICKS_PER_REVOLUTION);
     private static final double TICKS_PER_INCH = 1 / INCHES_PER_TICK;
     @Override
     public void init(HardwareMap parts) {
@@ -99,10 +99,11 @@ public class DriveTrain implements Subsystem {
         }
     }
     public double getForwardEncoders() {
-        return Math.sqrt(frontRight.getCurrentPosition()*frontRight.getCurrentPosition() +
-        frontLeft.getCurrentPosition()*frontLeft.getCurrentPosition() +
-        backRight.getCurrentPosition()*backRight.getCurrentPosition() +
-        backLeft.getCurrentPosition()*backLeft.getCurrentPosition());
+        return (Math.abs(frontLeft.getCurrentPosition()) +
+                Math.abs(frontRight.getCurrentPosition()) +
+                Math.abs(backLeft.getCurrentPosition()) +
+                Math.abs(backRight.getCurrentPosition())
+        )/4;
     }
 
     public double getInchesPerTick() {

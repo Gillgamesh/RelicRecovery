@@ -9,26 +9,28 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 import java.util.Locale;
 
-public class SingleIMU {
-    Double headingOffset = 0D; //quavo
+public class SingleIMU implements IMU {
     Double x = 0D; // x location
     Double y = 0D; //y location
+    Double init_heading;
     BNO055IMU imu;
-    Orientation angles;
-    Acceleration gravity;
-    BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+    //depends on the order setup
+    AxesOrder axesOrder;
 
 
 
     //
-    public void init(BNO055IMU i, AxesOrder order) {
-        imu = i;
+    public void init(BNO055IMU i, AxesOrder axesOrder, double heading) {
+        this.axesOrder = axesOrder;
+        this.imu = i;
+        this.init_heading = heading;
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.RADIANS;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -39,9 +41,26 @@ public class SingleIMU {
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 
         imu.initialize(parameters);
+        if (imu.isGyroCalibrated()) {
+        }
 
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
     }
+
+    //get heading from 0-360 range
+    public double getHeading() {
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, axesOrder, AngleUnit.DEGREES);
+        double heading = (angles.firstAngle + 360) % 360;
+        return (heading-init_heading) % 360;
+    }
+
+    //returns how off the angle is, returns + if counterclockwise rotation is most efficient, - otherwise
+    public double getError(double desired) {
+        double rawError = ((desired+360) %360) -getHeading();
+        if (rawError > 180) return rawError-360;
+        return rawError;
+    }
+
 
 
 

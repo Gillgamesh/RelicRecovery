@@ -48,6 +48,7 @@ public class ProtoTeleop extends TeleopRR {
         // and named "imu".
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
+        dt.runUsingEncoders();
 
         // Set up our telemetry dashboard
         composeTelemetry();
@@ -55,8 +56,13 @@ public class ProtoTeleop extends TeleopRR {
         dt.runUsingEncoders();
         dt.resetEncoders();
 //        dt.runWithoutEncoders();
-        ja.setArm(0.30);
+//        ja.setArm(0.30);
 
+    }
+
+    @Override
+    public void start() {
+        ja.setArm(0.30);
     }
 
     @Override

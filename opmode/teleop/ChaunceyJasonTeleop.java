@@ -53,8 +53,12 @@ public class ChaunceyJasonTeleop extends TeleopRR {
         dt.runUsingEncoders();
         dt.resetEncoders();
 //        dt.runWithoutEncoders();
-        ja.setArm(0.30);
+//        ja.setArm(0.30);
 
+    }
+    @Override
+    public void start() {
+        ja.restArm();
     }
 
     @Override
@@ -65,7 +69,7 @@ public class ChaunceyJasonTeleop extends TeleopRR {
         //positive offset = closer together
         double intake = gamepad2.right_trigger-gamepad2.left_trigger*0.4;
         if (gamepad1.left_bumper) y = 0;
-        if (gamepad1.right_bumper) {
+        if (!gamepad1.right_bumper) {
             x /= 2.0;
             y /= 2.0;
             theta /= 2.0;
@@ -74,6 +78,12 @@ public class ChaunceyJasonTeleop extends TeleopRR {
         gl.grasp(gamepad1.left_trigger-gamepad1.right_trigger);
         gl.lift(intake);
         telemetry.update();
+        if (gamepad2.a) {
+            ja.moveArm(0.10);
+        }
+        if (gamepad2.b) {
+            ja.moveArm(-0.10);
+        }
 
     }
 
@@ -156,26 +166,26 @@ public class ChaunceyJasonTeleop extends TeleopRR {
 //
 //                }
 //        });
-//        telemetry.addLine()
-//                .addData("fl-br encoders", new Func<String>() {
-//                    @Override public String value() {
-//                        List<DcMotor> motors = dt.getMotors();
-//                        int gearRatio = 40; //For neverest 40s,
-//                        //amount of revolutions traveled in one pulse: 1 / ppr, amount of revolutreal revolutions per tick
-//                        // is 1/ (7 * 40), amount of inches = (rev*4pi)
-//                        double inchesPerTick = (4 * 3.1415 / (1120) ) ;
-//                        double ticksPerInch = 1120 / (4*3.1415);
-//                        double toInches = inchesPerTick * .71;
-//
-//                        return String.format("%.2f, %.2f, %.2f, %.2f" ,
-//                                motors.get(0).getCurrentPosition()*toInches,
-//                                motors.get(1).getCurrentPosition()*toInches,
-//                                motors.get(2).getCurrentPosition()*toInches,
-//                                motors.get(3).getCurrentPosition()*toInches
-//                                );
-//
-//                    }
-//                });
+        telemetry.addLine()
+                .addData("fl-br encoders", new Func<String>() {
+                    @Override public String value() {
+                        List<DcMotor> motors = dt.getMotors();
+                        int gearRatio = 30; //For neverest 40s,
+                        //amount of revolutions traveled in one pulse: 1 / ppr, amount of revolutreal revolutions per tick
+                        // is 1/ (7 * 40), amount of inches = (rev*4pi)
+                        double inchesPerTick = (4 * 3.1415 / (1120) ) ;
+                        double ticksPerInch = 1120 / (4*3.1415);
+                        double toInches = inchesPerTick;
+
+                        return String.format("%.2f, %.2f, %.2f, %.2f" ,
+                                motors.get(0).getCurrentPosition()*toInches,
+                                motors.get(1).getCurrentPosition()*toInches,
+                                motors.get(2).getCurrentPosition()*toInches,
+                                motors.get(3).getCurrentPosition()*toInches
+                                );
+
+                    }
+                });
 //        telemetry.addLine()
 //                .addData("rgb", new Func<String>() {
 //                    @Override public String value() {

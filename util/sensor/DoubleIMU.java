@@ -7,6 +7,4 @@ public class DoubleIMU {
     SingleIMU[] imus = {imu1, imu2};
 
 
-
-
 }
