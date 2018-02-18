@@ -39,8 +39,9 @@ public class DriveTrain implements Subsystem {
         motors.add(frontRight = hwMap.dcMotor.get("frontRight"));
         motors.add(backLeft = hwMap.dcMotor.get("backLeft"));
         motors.add( backRight = hwMap.dcMotor.get("backRight"));
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        //reverse the right side, because the motor rotate counter clockwise in default orientation (andymark
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         //break:
         for (DcMotor m: motors) {
             m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -70,8 +71,12 @@ public class DriveTrain implements Subsystem {
     // \/
     // /\
     public void paraDrive(double x, double y, double theta) {
-        double fl = y-x+theta, fr = y+x-theta,
-                bl = y+x+theta, br = y-x-theta;
+        //assuming clockwise wheels:
+//        double fl = y-x+theta, fr = y+x-theta,
+//                bl = y+x+theta, br = y-x-theta;
+        //assuming counter clockwise wheels:
+        double fl = y+x-theta, fr = y-x+theta,
+                bl = y-x-theta, br = y+x+theta;
 //        double scale = Math.max(Math.max(fl, fr), Math.max(bl, br))  / 1.0;
         blindDrive(fl, fr,
                 bl, br);

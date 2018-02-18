@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.relicrecovery.util.vision.ClosableVuforiaL
 
 // manages vuforia,
 public class VuMarkDetector {
-    private static final String KEY = "";
+    private static final String KEY = "Ads71IX/////AAAAmcAFKImtpEq2q5dPaahAk7IOUp/oDd3MNiBU70KASAJpKDTxgFiDkOW5nSiiH1C/lBhGEklEU5ZQv5Jm+rayj4swA77LcjsZiEMgvKzEgRon7VNkAyQiWI98GMyFlkV3FbTsSqOL4N361XpK6sy84dgx7zz8Tuvo67oaP5AsJWhm7IE3u23F/4YnC0CCVdWd5fh/Sf2w/rO0ai5pDs+4TcW+NvYpzRYhNMhZuJ9xvyDMZjqmNekLpq0ahbrFfzULSZJEckBZCP0uhx8dnKRur3Fz//Ugs5BPAui3L6lxNdNytFHV41OokyF0bvjiQyWAdCh+hsgle7BY56GO+JHUVzg01XFWJAE6oar2cNP5dbug";
     //
     OpenGLMatrix lastLocation = null;
 

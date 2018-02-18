@@ -56,7 +56,6 @@ public class ProtoTeleop extends TeleopRR {
         dt.runUsingEncoders();
         dt.resetEncoders();
 //        dt.runWithoutEncoders();
-//        ja.setArm(0.30);
 
     }
 
@@ -68,7 +67,7 @@ public class ProtoTeleop extends TeleopRR {
     @Override
     public void loop() {
         double x = sensAdjust(gamepad1.left_stick_x);
-        double y = sensAdjust(gamepad1.left_stick_y);
+        double y = sensAdjust(-gamepad1.left_stick_y); // negative because xbox 360 controller
         double theta = sensAdjust(-gamepad1.right_stick_x);
         //positive offset = closer together
         double intake = gamepad2.right_trigger-gamepad2.left_trigger*0.5;
@@ -164,18 +163,14 @@ public class ProtoTeleop extends TeleopRR {
                 .addData("fl-br encoders", new Func<String>() {
                     @Override public String value() {
                         List<DcMotor> motors = dt.getMotors();
-                        int gearRatio = 40; //For neverest 40s,
                         //amount of revolutions traveled in one pulse: 1 / ppr, amount of revolutreal revolutions per tick
                         // is 1/ (7 * 40), amount of inches = (rev*4pi)
-                        double inchesPerTick = (4 * 3.1415 / (1120) ) ;
-                        double ticksPerInch = 1120 / (4*3.1415);
-                        double toInches = inchesPerTick * .71;
 
                         return String.format("%.2f, %.2f, %.2f, %.2f" ,
-                                motors.get(0).getCurrentPosition()*toInches,
-                                motors.get(1).getCurrentPosition()*toInches,
-                                motors.get(2).getCurrentPosition()*toInches,
-                                motors.get(3).getCurrentPosition()*toInches
+                                motors.get(0).getCurrentPosition()*dt.getInchesPerTick(),
+                                motors.get(1).getCurrentPosition()*dt.getInchesPerTick(),
+                                motors.get(2).getCurrentPosition()*dt.getInchesPerTick(),
+                                motors.get(3).getCurrentPosition()*dt.getInchesPerTick()
                                 );
 
                     }

@@ -24,12 +24,6 @@ public class ArmDropBlueF extends AutonRR {
             speed *= -1;
 
         }
-        t.reset();
-        dt.paraDrive(0.0, speed, 0);
-        while (t.milliseconds() < 500);
-        dt.stop();
-        t.reset();
-        while (t.milliseconds() < 500);
         ja.setArm(0.5);
 
 

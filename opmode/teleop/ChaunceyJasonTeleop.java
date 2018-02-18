@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import org.firstinspires.ftc.teamcode.relicrecovery.util.sensor.SingleIMU;
 
 import java.util.List;
 import java.util.Locale;
@@ -21,11 +22,12 @@ import java.util.Locale;
 
 public class ChaunceyJasonTeleop extends TeleopRR {
     // The IMU sensor object
-    BNO055IMU imu;
+    SingleIMU imu;
 
     // State used for updating telemetry
     Orientation angles;
     Acceleration gravity;
+    double _initHeading = 0;
 
     @Override
     public void init() {
@@ -33,23 +35,10 @@ public class ChaunceyJasonTeleop extends TeleopRR {
         // Set up the parameters with which we will u our IMU. Note that integration
         // algorithm here just reports accelerations to the logcat log; it doesn't actually
         // provide positional information.
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled      = true;
-        parameters.loggingTag          = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
-
+        imu = new SingleIMU();
+        imu.init(hardwareMap.get(BNO055IMU.class, "imu2"), AxesOrder.ZYX, _initHeading);
         // Set up our telemetry dashboard
         composeTelemetry();
-        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
         dt.runUsingEncoders();
         dt.resetEncoders();
 //        dt.runWithoutEncoders();
@@ -64,7 +53,7 @@ public class ChaunceyJasonTeleop extends TeleopRR {
     @Override
     public void loop() {
         double x = sensAdjust(gamepad1.left_stick_x) - sensAdjust(gamepad2.left_stick_x);
-        double y = sensAdjust(gamepad1.left_stick_y) - sensAdjust(gamepad2.left_stick_y);
+        double y = -sensAdjust(gamepad1.left_stick_y) - -sensAdjust(gamepad2.left_stick_y);
         double theta = sensAdjust(-gamepad1.right_stick_x) - sensAdjust(-gamepad2.right_stick_x);
         //positive offset = closer together
         double intake = gamepad2.right_trigger-gamepad2.left_trigger*0.4;
@@ -114,6 +103,19 @@ public class ChaunceyJasonTeleop extends TeleopRR {
 //            gravity  = imu.getGravity();
 //        }
 //        });
+        telemetry.addLine()
+                .addData("controller 1", new Func<String> () {
+                    @Override public String value() {
+                        return (String.format("x: %.2f : %.2f", gamepad1.left_stick_x, gamepad1.left_stick_y ));
+                    }
+                });
+        telemetry.addLine()
+                .addData("imu", new Func<String> () {
+                    @Override public String value() {
+                        return (String.format("heading: %.2f, error from -90: %.2f ", imu.getHeading(), imu.getError(-90) ));
+                    }
+                });
+
 //
 //        telemetry.addLine()
 //                .addData("status", new Func<String>() {
@@ -130,19 +132,10 @@ public class ChaunceyJasonTeleop extends TeleopRR {
 //        telemetry.addLine()
 //                .addData("heading", new Func<String>() {
 //                    @Override public String value() {
-//                        return formatAngle(angles.angleUnit, angles.firstAngle);
+//                        return String.format(imu);
 //                    }
-//                })
-//                .addData("roll", new Func<String>() {
-//                    @Override public String value() {
-//                        return formatAngle(angles.angleUnit, angles.secondAngle);
-//                    }
-//                })
-//                .addData("pitch", new Func<String>() {
-//                    @Override public String value() {
-//                        return formatAngle(angles.angleUnit, angles.thirdAngle);
-//                    }
-//                });
+//                }
+//                );
 //
 //        telemetry.addLine()
 //                .addData("grvty", new Func<String>() {
@@ -170,18 +163,12 @@ public class ChaunceyJasonTeleop extends TeleopRR {
                 .addData("fl-br encoders", new Func<String>() {
                     @Override public String value() {
                         List<DcMotor> motors = dt.getMotors();
-                        int gearRatio = 30; //For neverest 40s,
-                        //amount of revolutions traveled in one pulse: 1 / ppr, amount of revolutreal revolutions per tick
-                        // is 1/ (7 * 40), amount of inches = (rev*4pi)
-                        double inchesPerTick = (4 * 3.1415 / (1120) ) ;
-                        double ticksPerInch = 1120 / (4*3.1415);
-                        double toInches = inchesPerTick;
 
                         return String.format("%.2f, %.2f, %.2f, %.2f" ,
-                                motors.get(0).getCurrentPosition()*toInches,
-                                motors.get(1).getCurrentPosition()*toInches,
-                                motors.get(2).getCurrentPosition()*toInches,
-                                motors.get(3).getCurrentPosition()*toInches
+                                motors.get(0).getCurrentPosition()*dt.getInchesPerTick(),
+                                motors.get(1).getCurrentPosition()*dt.getInchesPerTick(),
+                                motors.get(2).getCurrentPosition()*dt.getInchesPerTick(),
+                                motors.get(3).getCurrentPosition()*dt.getInchesPerTick()
                                 );
 
                     }

@@ -17,9 +17,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import java.util.Locale;
 
 public class SingleIMU implements IMU {
-    Double x = 0D; // x location
-    Double y = 0D; //y location
-    Double init_heading;
+    double x = 0D; // x location
+    double y = 0D; //y location
+    double init_heading;
     BNO055IMU imu;
     //depends on the order setup
     AxesOrder axesOrder;

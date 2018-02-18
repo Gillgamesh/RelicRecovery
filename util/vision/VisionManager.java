@@ -43,7 +43,7 @@ public class VisionManager {
                 /* vuMarkDetector */
         vuMarkDetector = new VuMarkDetector();
         //basically enables it too
-//        vuMarkDetector.init(map);
+        vuMarkDetector.init(map);
         /* end vuMarkDetector */
 
         /* jewelDetector */

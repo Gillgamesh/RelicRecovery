@@ -21,7 +21,7 @@ public abstract class AutonRR extends LinearOpMode {
     JewelArm ja;
     IMU imu;
     VisionManager vision;
-    Double _initHeading;
+    double _initHeading = 0;
     @Override
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap);
@@ -42,7 +42,7 @@ public abstract class AutonRR extends LinearOpMode {
 
     public void waitSec(double seconds) {
         ElapsedTime t = new ElapsedTime();
-        while (opModeIsActive() && t.milliseconds()/1000.0 < seconds);
+        while (opModeIsActive() && t.milliseconds()/1000.0 > seconds);
     }
     abstract void routine();
 
